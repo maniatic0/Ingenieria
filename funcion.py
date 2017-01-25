@@ -79,4 +79,5 @@ if __name__ == '__main__':
     print(a.getFinde())
     calcularPrecio(a, [datetime.today(), datetime(2017, 1, 25)])
     calcularPrecio(a, [datetime.today(), datetime(2017, 2, 23)])
+# csm con palma
     
