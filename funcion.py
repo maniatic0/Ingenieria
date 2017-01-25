@@ -147,5 +147,5 @@ if __name__ == '__main__':
     print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 25)]))
     print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 27)]))
     calcularPrecio(a, [datetime.today(), datetime(2017, 2, 23)])
-# csm con palma
+
     
