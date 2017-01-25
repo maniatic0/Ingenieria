@@ -34,6 +34,53 @@ def calcularPrecio(tarifa, tiempoDeServicio):
     if resta > timedelta(days = 7):
         raise Exception('No puede ser mayor a 7 dias')
     
+    
+    iterador = tiempoDeServicio[0]
+    
+    if tiempoDeServicio[0].weekday() >= 5:
+        semana = False
+    else:
+        semana = True
+        
+    deltaTiempoSemana = 0
+    deltaTiempoFinde = 0
+    while iterador + timedelta(hours=1) < tiempoDeServicio[1]:
+        iterador = iterador + timedelta(hours=1)
+        if iterador.weekday() >= 5:
+            # Se toma que, si se pasan algunos minutos en la semana antes de llegar al fin de semana,
+            # entonces consumio una hora de semana
+            if semana:
+                deltaTiempoSemana = deltaTiempoSemana + 1
+            else:
+                deltaTiempoFinde = deltaTiempoFinde + 1
+            # Reiniciamos las horas de fin de semana como si contaramos desde 0
+            iterador = datetime.combine(iterador.date(), datetime.min.time())
+            semana = False
+        else:
+            # Se toma que, si se pasan algunos minutos en el fin semana antes de llegar a la semana,
+            # entonces consumio una hora de fin de semana
+            if not semana:
+                deltaTiempoSemana = deltaTiempoSemana + 1
+            else:
+                deltaTiempoFinde = deltaTiempoFinde + 1
+            # Reiniciamos las horas de semana como si contaramos desde 0
+            iterador = datetime.combine(iterador.date(), datetime.min.time())
+            semana = True
+            
+    # Sobraron tiempo
+    if tiempoDeServicio[1] - iterador > timedelta():
+        # Falto una hora de fin de semana
+        if tiempoDeServicio[1].weekday() >= 5 and iterador.weekday() >= 5:
+            deltaTiempoFinde = deltaTiempoFinde + 1
+        # Falto una hora de semana
+        elif tiempoDeServicio[1].weekday() < 5 and iterador.weekday() < 5:
+            deltaTiempoSemana = deltaTiempoSemana + 1
+        # Hay horas de fin de semana y semana como recargo
+        else:
+            deltaTiempoSemana = deltaTiempoSemana + 1
+            deltaTiempoFinde = deltaTiempoFinde + 1
+    
+    """
     # Pasar todo fin de semana.
     if tiempoDeServicio[1].weekday() <= tiempoDeServicio[0].weekday() and tiempoDeServicio[0].weekday() < 5:
         deltaTiempoSemana = (resta - timedelta(hours = 48)).total_seconds()
@@ -75,13 +122,15 @@ def calcularPrecio(tarifa, tiempoDeServicio):
     # Calcular Precio
     deltaTiempoFinde = round(((deltaTiempoFinde / 24) / 24)+0.5)
     deltaTiempoSemana = round(((deltaTiempoSemana / 24) / 24)+0.5)
+    """
     precio = deltaTiempoFinde*tarifa.getFinde() + deltaTiempoSemana*tarifa.getSemana()
     return precio
 
 if __name__ == '__main__':
     a = Tarifa(1,1)
     print(a.getFinde())
-    calcularPrecio(a, [datetime.today(), datetime(2017, 1, 25)])
+    print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 25, 1)]))
+    print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 25)]))
     calcularPrecio(a, [datetime.today(), datetime(2017, 2, 23)])
 # csm con palma
     
