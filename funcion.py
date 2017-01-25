@@ -10,6 +10,9 @@ from datetime import *
 from math import *
 
 class Tarifa:
+    # Dominio Clase Tarifa
+    # (0,1e308) (1e308 es el máximo número representado por Python)
+
     _semana = 0.0
     _finde = 0.0
     def __init__(self, sem, fin):
@@ -26,6 +29,14 @@ class Tarifa:
     
 
 def calcularPrecio(tarifa, tiempoDeServicio):
+   # Domimio tiempoDeServicio: 
+   # año = [1,9999], mes = [1,12], hora = [0,23], minuto = [0,59], segundo = [0,59], microsegundo = [0,999999] 
+   
+   # Para toda la función calcularPrecio el dominio de datos corresponde al dominio de ambas funciones, 
+   # por ejemplo en un año cualquiera el dominio es del primero de enero a las 0 horas 0 minutos 1 segundos 
+   # hasta el 31 de diciembre a las 23 horas 59 minutos 59 segundos. Los segundos no se toman en cuenta para 
+   # el cálculo de la función. El rango de la función si corresponde a cualesquiera dos fechas mientras la
+   #  diferencia sea mayor a quince minutos y menor a 7 dias, es decir: 0 dias 00:15 < TiempoDeServicio < 07 dias 00:00
     if tiempoDeServicio[1] < tiempoDeServicio[0]:
         raise Exception('No puedes ir al pasado')
     resta = tiempoDeServicio[1] - tiempoDeServicio[0]
