@@ -37,7 +37,7 @@ def calcularPrecio(tarifa, tiempoDeServicio):
     
     iterador = tiempoDeServicio[0]
     
-    if tiempoDeServicio[0].weekday() >= 5:
+    if iterador.weekday() >= 5:
         semana = False
     else:
         semana = True
@@ -51,20 +51,20 @@ def calcularPrecio(tarifa, tiempoDeServicio):
             # entonces consumio una hora de semana
             if semana:
                 deltaTiempoSemana = deltaTiempoSemana + 1
+                # Reiniciamos las horas de fin de semana como si contaramos desde 0
+                iterador = datetime.combine(iterador.date(), datetime.min.time()) + timedelta(microseconds=1)
             else:
                 deltaTiempoFinde = deltaTiempoFinde + 1
-            # Reiniciamos las horas de fin de semana como si contaramos desde 0
-            iterador = datetime.combine(iterador.date(), datetime.min.time())
             semana = False
         else:
             # Se toma que, si se pasan algunos minutos en el fin semana antes de llegar a la semana,
             # entonces consumio una hora de fin de semana
-            if not semana:
+            if semana:
                 deltaTiempoSemana = deltaTiempoSemana + 1
             else:
                 deltaTiempoFinde = deltaTiempoFinde + 1
-            # Reiniciamos las horas de semana como si contaramos desde 0
-            iterador = datetime.combine(iterador.date(), datetime.min.time())
+                # Reiniciamos las horas de semana como si contaramos desde 0
+                iterador = datetime.combine(iterador.date(), datetime.min.time()) + timedelta(microseconds=1)
             semana = True
             
     # Sobraron tiempo
@@ -130,7 +130,9 @@ if __name__ == '__main__':
     a = Tarifa(1,1)
     print(a.getFinde())
     print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 25, 1)]))
-    print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 25)]))
+    print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 25, 12)]))
+    print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 26)]))
+    print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 26,2)]))
     calcularPrecio(a, [datetime.today(), datetime(2017, 2, 23)])
 # csm con palma
     
