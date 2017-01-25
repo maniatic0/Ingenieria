@@ -7,6 +7,7 @@ Created on Jan 23, 2017
 
 from datetime import *
 from exceptions import *
+from math import *
 
 class Tarifa:
     _semana = 0.0
@@ -46,12 +47,32 @@ def calcularPrecio(tarifa, tiempoDeServicio):
     # Inicio Fin de Semana a Semana
     elif tiempoDeServicio[0].weekday() >= 5 and tiempoDeServicio[1].weekday() < 5:
         deltaTiempoFinde = timedelta(hours=tiempoDeServicio[0].hour(), minutes=tiempoDeServicio[1].minute(), 
-                                         seconds=tiempoDeServicio[0].second(), microseconds=tiempoDeServicio[1].microsecond())
+                                         seconds=tiempoDeServicio[0].second(), microseconds=tiempoDeServicio[0].microsecond())
         if tiempoDeServicio[0].weekday() == 6:
             deltaTiempoFinde = deltaTiempoFinde + timedelta(days=1)
         deltaTiempoSemana = (resta - deltaTiempoFinde).total_seconds()
         deltaTiempoFinde = deltaTiempoFinde.total_seconds()
-    
+    # Inicio Sabado a Domingo
+    elif tiempoDeServicio[0].weekday() == 5 and tiempoDeServicio[1].weekday() == 6:
+        deltaTiempoFinde = resta.total_seconds()
+        deltaTiempoSemana = timedelta(0).total_seconds()
+    # Inicio Semana a Semana
+    elif tiempoDeServicio[0].weekday() < 5 and tiempoDeServicio[1].weekday() < 5:        
+        deltaTiempoSemana = resta.total_seconds()
+        deltaTiempoFinde = timedelta(0).total_seconds()
+    # Inicio Domingo a Sabado
+    elif tiempoDeServicio[0].weekday() == 6 and tiempoDeServicio[1].weekday() == 5:
+        deltaSabado = timedelta(hours=24) - timedelta(hours=tiempoDeServicio[0].hour())
+        deltaDomingo = timedelta(hours=tiempoDeServicio[1].hour()) - deltaSabado
+        deltaTiempoFinde = deltaSabado + deltaDomingo
+        deltaTiempoSemana = (resta - deltaTiempoFinde).total_seconds()
+        deltaTiempoFinde = deltaTiempoFinde.total_seconds()
+        
+    # Calcular Precio
+    deltaTiempoFinde = round(((deltaTiempoFinde / 24) / 24)+0.5)
+    deltaTiempoSemana = round(((deltaTiempoSemana / 24) / 24)+0.5)
+    precio = deltaTiempoFinde*tarifa.getFinde() + deltaTiempoSemana*tarifa.getSemana()
+    return precio
 
 if __name__ == '__main__':
     a = Tarifa(1,1)
