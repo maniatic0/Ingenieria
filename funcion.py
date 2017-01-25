@@ -6,7 +6,7 @@ Created on Jan 23, 2017
 '''
 
 from datetime import *
-from exceptions import *
+#from exceptions import *
 from math import *
 
 class Tarifa:
@@ -78,4 +78,5 @@ if __name__ == '__main__':
     a = Tarifa(1,1)
     print(a.getFinde())
     calcularPrecio(a, [datetime.today(), datetime(2017, 1, 25)])
+    calcularPrecio(a, [datetime.today(), datetime(2017, 2, 23)])
     
