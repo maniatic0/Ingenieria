@@ -19,7 +19,11 @@ class Test(unittest.TestCase):
         t = Tarifa(0,1)
         self.assertEqual(t.getFinde()==1, True)
         
-
+    def testTarifaNoAceptaNegativos(self):
+        with self.assertRaises(Exception) as context:
+            Tarifa(-1,0)
+        self.assertTrue('No existen las Tarifas Negativas' in str(context.exception))
+        
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
