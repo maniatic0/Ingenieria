@@ -24,6 +24,11 @@ class Test(unittest.TestCase):
             Tarifa(-1,0)
         self.assertTrue('No existen las Tarifas Negativas' in str(context.exception))
         
+    def testTarifaFloats(self):
+        t = Tarifa(1.366,3.1416)
+        self.assertEqual(t.getSemana()==1.366,True)
+        self.assertEqual(t.getFinde()==3.1416,True)
+        
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
