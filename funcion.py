@@ -108,5 +108,3 @@ def calcularPrecio(tarifa, tiempoDeServicio):
     findeHorasParciales = ceil(acumuladorMinutosFinde / timedelta(hours=1))
     precio = (deltaTiempoFinde + findeHorasParciales)*tarifa.getFinde() + (deltaTiempoSemana + semanaHorasParciales)*tarifa.getSemana()
     return precio
-
-    
