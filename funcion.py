@@ -5,9 +5,8 @@ Created on Jan 23, 2017
 @author: christian
 '''
 
-from datetime import *
-#from exceptions import *
-from math import *
+from datetime import datetime, timedelta
+from math import ceil
 
 class Tarifa:
     # Dominio Clase Tarifa
@@ -29,14 +28,13 @@ class Tarifa:
     
 
 def calcularPrecio(tarifa, tiempoDeServicio):
-   # Domimio tiempoDeServicio: 
-   # año = [1,9999], mes = [1,12], hora = [0,23], minuto = [0,59], segundo = [0,59], microsegundo = [0,999999] 
-   
-   # Para toda la función calcularPrecio el dominio de datos corresponde al dominio de ambas funciones, 
-   # por ejemplo en un año cualquiera el dominio es del primero de enero a las 0 horas 0 minutos 1 segundos 
-   # hasta el 31 de diciembre a las 23 horas 59 minutos 59 segundos. Los segundos no se toman en cuenta para 
-   # el cálculo de la función. El rango de la función si corresponde a cualesquiera dos fechas mientras la
-   #  diferencia sea mayor a quince minutos y menor a 7 dias, es decir: 0 dias 00:15 < TiempoDeServicio < 07 dias 00:00
+    # Domimio tiempoDeServicio: 
+    # año = [1,9999], mes = [1,12], hora = [0,23], minuto = [0,59], segundo = [0,59], microsegundo = [0,999999] 
+    # Para toda la función calcularPrecio el dominio de datos corresponde al dominio de ambas funciones, 
+    # por ejemplo en un año cualquiera el dominio es del primero de enero a las 0 horas 0 minutos 1 segundos 
+    # hasta el 31 de diciembre a las 23 horas 59 minutos 59 segundos. Los segundos no se toman en cuenta para 
+    # el cálculo de la función. El rango de la función si corresponde a cualesquiera dos fechas mientras la
+    #  diferencia sea mayor a quince minutos y menor a 7 dias, es decir: 0 dias 00:15 < TiempoDeServicio < 07 dias 00:00
     if tiempoDeServicio[1] < tiempoDeServicio[0]:
         raise Exception('No puedes ir al pasado')
     resta = tiempoDeServicio[1] - tiempoDeServicio[0]
@@ -52,18 +50,25 @@ def calcularPrecio(tarifa, tiempoDeServicio):
         semana = False
     else:
         semana = True
+    
         
     deltaTiempoSemana = 0
     deltaTiempoFinde = 0
+    acumuladorMinutosSemana = timedelta()
+    acumuladorMinutosFinde = timedelta()
+    
     while iterador + timedelta(hours=1) < tiempoDeServicio[1]:
+        old_iterador = iterador
         iterador = iterador + timedelta(hours=1)
         if iterador.weekday() >= 5:
             # Se toma que, si se pasan algunos minutos en la semana antes de llegar al fin de semana,
             # entonces consumio una hora de semana
             if semana:
-                deltaTiempoSemana = deltaTiempoSemana + 1
                 # Reiniciamos las horas de fin de semana como si contaramos desde 0
-                iterador = datetime.combine(iterador.date(), datetime.min.time()) + timedelta(microseconds=1)
+                aux = datetime.combine(iterador.date(), datetime.min.time())
+                acumuladorMinutosFinde = acumuladorMinutosFinde + (iterador - aux)
+                acumuladorMinutosSemana = acumuladorMinutosSemana + (aux - old_iterador)
+                iterador = aux
             else:
                 deltaTiempoFinde = deltaTiempoFinde + 1
             semana = False
@@ -73,75 +78,42 @@ def calcularPrecio(tarifa, tiempoDeServicio):
             if semana:
                 deltaTiempoSemana = deltaTiempoSemana + 1
             else:
-                deltaTiempoFinde = deltaTiempoFinde + 1
                 # Reiniciamos las horas de semana como si contaramos desde 0
-                iterador = datetime.combine(iterador.date(), datetime.min.time()) + timedelta(microseconds=1)
+                aux = datetime.combine(iterador.date(), datetime.min.time())
+                acumuladorMinutosFinde = acumuladorMinutosFinde + (aux - old_iterador)
+                acumuladorMinutosSemana = acumuladorMinutosSemana + (iterador - aux)
+                iterador = datetime.combine(iterador.date(), datetime.min.time())
             semana = True
             
     # Sobraron tiempo
     if tiempoDeServicio[1] - iterador > timedelta():
         # Falto una hora de fin de semana
         if tiempoDeServicio[1].weekday() >= 5 and iterador.weekday() >= 5:
-            deltaTiempoFinde = deltaTiempoFinde + 1
+            acumuladorMinutosFinde = acumuladorMinutosFinde + (tiempoDeServicio[1] - iterador)
         # Falto una hora de semana
         elif tiempoDeServicio[1].weekday() < 5 and iterador.weekday() < 5:
-            deltaTiempoSemana = deltaTiempoSemana + 1
-        # Hay horas de fin de semana y semana como recargo
-        else:
-            deltaTiempoSemana = deltaTiempoSemana + 1
-            deltaTiempoFinde = deltaTiempoFinde + 1
-    
-    """
-    # Pasar todo fin de semana.
-    if tiempoDeServicio[1].weekday() <= tiempoDeServicio[0].weekday() and tiempoDeServicio[0].weekday() < 5:
-        deltaTiempoSemana = (resta - timedelta(hours = 48)).total_seconds()
-        deltaTiempoFinde = timedelta(hours = 48).total_seconds()
-    # Iniciar Semana y LLegar a Fin de semana
-    elif tiempoDeServicio[0].weekday() < 5 and tiempoDeServicio[1].weekday() >= 5:
-        deltaTiempoFinde = timedelta(hours=tiempoDeServicio[1].hour(), minutes=tiempoDeServicio[1].minute(), 
-                                         seconds=tiempoDeServicio[1].second(), microseconds=tiempoDeServicio[1].microsecond())
-        # Como se que fue a sabado o domingo, se que si fue a domingo pase todo sabado
-        if tiempoDeServicio[1].weekday() == 6:
-            deltaTiempoFinde = deltaTiempoFinde + timedelta(days=1)
-        deltaTiempoSemana = (resta - deltaTiempoFinde).total_seconds()
-        deltaTiempoFinde = deltaTiempoFinde.total_seconds()
-    # Inicio Fin de Semana a Semana
-    elif tiempoDeServicio[0].weekday() >= 5 and tiempoDeServicio[1].weekday() < 5:
-        deltaTiempoFinde = timedelta(hours=tiempoDeServicio[0].hour(), minutes=tiempoDeServicio[1].minute(), 
-                                         seconds=tiempoDeServicio[0].second(), microseconds=tiempoDeServicio[0].microsecond())
-        # Como llegue a la semana e inicie el sabado, se que pase el domingo
-        if tiempoDeServicio[0].weekday() == 5:
-            deltaTiempoFinde = deltaTiempoFinde + timedelta(days=1)
-        deltaTiempoSemana = (resta - deltaTiempoFinde).total_seconds()
-        deltaTiempoFinde = deltaTiempoFinde.total_seconds()
-    # Inicio Sabado a Domingo
-    elif tiempoDeServicio[0].weekday() == 5 and tiempoDeServicio[1].weekday() == 6:
-        deltaTiempoFinde = resta.total_seconds()
-        deltaTiempoSemana = timedelta(0).total_seconds()
-    # Inicio Semana a Semana
-    elif tiempoDeServicio[0].weekday() < 5 and tiempoDeServicio[1].weekday() < 5:        
-        deltaTiempoSemana = resta.total_seconds()
-        deltaTiempoFinde = timedelta(0).total_seconds()
-    # Inicio Domingo a Sabado
-    elif tiempoDeServicio[0].weekday() == 6 and tiempoDeServicio[1].weekday() == 5:
-        deltaSabado = timedelta(hours=24) - timedelta(hours=tiempoDeServicio[0].hour())
-        deltaDomingo = timedelta(hours=tiempoDeServicio[1].hour()) - deltaSabado
-        deltaTiempoFinde = deltaSabado + deltaDomingo
-        deltaTiempoSemana = (resta - deltaTiempoFinde).total_seconds()
-        deltaTiempoFinde = deltaTiempoFinde.total_seconds()
-        
-    # Calcular Precio
-    deltaTiempoFinde = round(((deltaTiempoFinde / 24) / 24)+0.5)
-    deltaTiempoSemana = round(((deltaTiempoSemana / 24) / 24)+0.5)
-    """
-    precio = deltaTiempoFinde*tarifa.getFinde() + deltaTiempoSemana*tarifa.getSemana()
+            acumuladorMinutosSemana = acumuladorMinutosSemana + (tiempoDeServicio[1] - iterador)
+        # De semana llega a fin de semana
+        elif tiempoDeServicio[1].weekday() < 5 and iterador.weekday() >= 5:
+            aux = datetime.combine(tiempoDeServicio.date(), datetime.min.time())
+            acumuladorMinutosFinde = acumuladorMinutosFinde + (tiempoDeServicio[1] - aux)
+            acumuladorMinutosSemana = acumuladorMinutosSemana + (aux - iterador)
+        # De fin de semana llega a semana
+        elif tiempoDeServicio[1].weekday() >= 5 and iterador.weekday() < 5:
+            aux = datetime.combine(tiempoDeServicio.date(), datetime.min.time())
+            acumuladorMinutosFinde = acumuladorMinutosFinde + (aux - iterador)
+            acumuladorMinutosSemana = acumuladorMinutosSemana + (tiempoDeServicio[1] - aux)
+            
+    semanaHorasParciales = ceil(acumuladorMinutosSemana / timedelta(hours=1))
+    findeHorasParciales = ceil(acumuladorMinutosFinde / timedelta(hours=1))
+    precio = (deltaTiempoFinde + findeHorasParciales)*tarifa.getFinde() + (deltaTiempoSemana + semanaHorasParciales)*tarifa.getSemana()
     return precio
 
 if __name__ == '__main__':
     a = Tarifa(1,1)
     print(a.getFinde())
-    print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 25, 1)]))
-    print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 25, 12)]))
+    print(calcularPrecio(a, [datetime.today(), datetime.today() + timedelta(hours=1)]))
+    print(calcularPrecio(a, [datetime.today(), datetime.today() + timedelta(days=7) - timedelta(seconds=1)]))
     print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 26)]))
     print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 26,2)]))
     calcularPrecio(a, [datetime.today(), datetime(2017, 2, 23)])
