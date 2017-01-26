@@ -7,6 +7,7 @@ Created on Jan 25, 2017
 import unittest
 from funcion import Tarifa, calcularPrecio
 from datetime import datetime, timedelta
+from _datetime import date
 
 class Test(unittest.TestCase):
     tarifaPrueba = None
@@ -48,6 +49,25 @@ class Test(unittest.TestCase):
             calcularPrecio(a, tiempo)
         self.assertTrue('No puede ser mayor a 7 dias' in str(context.exception))
         
+    def testBasico2Semana(self):
+        tiempo = [datetime(2017, 1, 25), datetime(2017, 1, 25) + timedelta(hours=5, minutes=15)]
+        self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), 6)
+        
+    def testBasico2FinDeSemana(self):
+        tiempo = [datetime(2017, 1, 28), datetime(2017, 1, 28) + timedelta(hours=3, minutes=1)]
+        self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), 4*2)
+        
+    def testPasoDeSemanaAFinDeSemana(self):
+        tiempo = [datetime(2017, 1, 28) - timedelta(hours=2, minutes=15), datetime(2017, 1, 28) + timedelta(hours=3, minutes=1)]
+        self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), 3+4*2)
+    
+    def testPasoDeFinSemanaASemana(self):
+        tiempo = [datetime(2017, 1, 30) - timedelta(hours=2, minutes=15), datetime(2017, 1, 30) + timedelta(hours=3, minutes=1)]
+        self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), (3*2)+4)
+        
+    def testSemanaCompleta(self):
+        tiempo = [datetime(2017, 1, 23), datetime(2017, 1, 23) + timedelta(days=5)]
+        self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), 120)
     
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
