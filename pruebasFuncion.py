@@ -66,8 +66,28 @@ class Test(unittest.TestCase):
         self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), (3*2)+4)
         
     def testSemanaCompleta(self):
-        tiempo = [datetime(2017, 1, 23), datetime(2017, 1, 23) + timedelta(days=5)]
+        tiempo = [datetime(2017, 1, 23), datetime(2017, 1, 23) + timedelta(days=5, microseconds=-1)]
         self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), 120)
+        
+    def testFinSemanaCompleto(self):
+        tiempo = [datetime(2017, 1, 28), datetime(2017, 1, 28) + timedelta(days=2, microseconds=-1)]
+        self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), 48*2)
+        
+    def testSemanaASemanaDistinta(self):
+        tiempo = [datetime(2017, 1, 27), datetime(2017, 1, 31) + timedelta(microseconds=-1)]
+        self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), 48*2 + 48)
+        
+    def testSieteDiaz(self):
+        tiempo = [datetime(2017, 1, 27), datetime(2017, 1, 27) + timedelta(days=7, microseconds=-1)]
+        self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), 48*2 + 120)
+    
+    def testSieteDiazTerminandoEnFinDeSemana(self):
+        tiempo = [datetime(2017, 1, 29), datetime(2017, 1, 29) + timedelta(days=7, microseconds=-1)]
+        self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), 48*2 + 120)
+        
+    def testMenosDeUnaHoraEntreFinDeSemanaYSemana(self):
+        tiempo = [datetime(2017, 1, 30) + timedelta(minutes=-22), datetime(2017, 1, 30) + timedelta(minutes=6)]
+        self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), 1*2 + 1)
     
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
