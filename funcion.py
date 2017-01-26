@@ -95,12 +95,12 @@ def calcularPrecio(tarifa, tiempoDeServicio):
             acumuladorMinutosSemana = acumuladorMinutosSemana + (tiempoDeServicio[1] - iterador)
         # De semana llega a fin de semana
         elif tiempoDeServicio[1].weekday() < 5 and iterador.weekday() >= 5:
-            aux = datetime.combine(tiempoDeServicio.date(), datetime.min.time())
+            aux = datetime.combine(tiempoDeServicio[1].date(), datetime.min.time())
             acumuladorMinutosFinde = acumuladorMinutosFinde + (tiempoDeServicio[1] - aux)
             acumuladorMinutosSemana = acumuladorMinutosSemana + (aux - iterador)
         # De fin de semana llega a semana
         elif tiempoDeServicio[1].weekday() >= 5 and iterador.weekday() < 5:
-            aux = datetime.combine(tiempoDeServicio.date(), datetime.min.time())
+            aux = datetime.combine(tiempoDeServicio[1].date(), datetime.min.time())
             acumuladorMinutosFinde = acumuladorMinutosFinde + (aux - iterador)
             acumuladorMinutosSemana = acumuladorMinutosSemana + (tiempoDeServicio[1] - aux)
             
