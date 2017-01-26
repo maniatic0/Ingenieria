@@ -26,6 +26,12 @@ class Test(unittest.TestCase):
     def testBasicoFinDeSemana(self):
         tiempo = [datetime(2017, 1, 28), datetime(2017, 1, 28) + timedelta(hours=1)]
         self.assertEqual(calcularPrecio(self.tarifaPrueba, tiempo), 2)
+        
+    def testExcepcionPasado(self):
+        
+    def testExcepcionMinimo(self):
+        
+    def testExcepcionMaximo(self):
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
