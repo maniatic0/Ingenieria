@@ -109,12 +109,4 @@ def calcularPrecio(tarifa, tiempoDeServicio):
     precio = (deltaTiempoFinde + findeHorasParciales)*tarifa.getFinde() + (deltaTiempoSemana + semanaHorasParciales)*tarifa.getSemana()
     return precio
 
-if __name__ == '__main__':
-    a = Tarifa(1,1)
-    print(a.getFinde())
-    print(calcularPrecio(a, [datetime.today(), datetime.today() + timedelta(hours=1)]))
-    print(calcularPrecio(a, [datetime.today(), datetime.today() + timedelta(days=7) - timedelta(seconds=1)]))
-    print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 26)]))
-    print(calcularPrecio(a, [datetime.today(), datetime(2017, 1, 26,2)]))
-    calcularPrecio(a, [datetime.today(), datetime(2017, 2, 23)])
     
